@@ -26,6 +26,4 @@ To access a T1S network a [Two-Wire ETH Click] board or similar boards can be us
 [cyw43439 driver package]: https://github.com/soypat/cyw43439
 [periph]: https://periph.io
 
-[soypat/seqs]: https://github.com/soypat/seqs
-
 [Two-Wire Eth Click]: https://www.mikroe.com/two-wire-eth-click

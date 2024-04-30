@@ -4,10 +4,11 @@ Httpsrv is an example HTTP server, based on
 [soypat/cyw43439/examples/http-server], adapted
 for being used with LAN865x.
 
-[soypat/cyw43439/examples/http-server]: https://github.com/soypat/cyw43439/tree/main/examples/http-server
-
 The server makes use of [soypat/seqs] as TCP/IP stack.
 
+[soypat/cyw43439/examples/http-server]: https://github.com/soypat/cyw43439/tree/main/examples/http-server
+
+[soypat/seqs]: https://github.com/soypat/seqs
 
 ## httpsrv on Raspberry Pi Pico
 
