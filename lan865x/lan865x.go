@@ -205,12 +205,15 @@ const (
 
 	ethMACDestSize  = 6
 	ethMACSrcSize   = 6
+	eth8021QtagSize = 4
 	ethLengthSize   = 2
 	ipHeaderMinSize = 20
+	ethFCSsize      = 4
 
-	minPacketSize = ethPreambleAndSFDSize +
-		ethMACDestSize + ethMACSrcSize + ethLengthSize +
-		ipHeaderMinSize
+	minPacketSize = ethMACDestSize + ethMACSrcSize +
+		ethLengthSize +
+		ipHeaderMinSize +
+		ethFCSsize
 )
 
 //export tc6_onRxEthernetPacket
