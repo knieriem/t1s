@@ -198,22 +198,7 @@ func tc6_onRxEthernetSlice(_ *C.TC6_t, pRx unsafe.Pointer, offset uint16, nRx ui
 }
 
 const (
-	// IEEE 802.3 Ethernet Frame Format
-	ethPreambleSize       = 7
-	ethStartFrameDelSize  = 1
-	ethPreambleAndSFDSize = ethPreambleSize + ethStartFrameDelSize
-
-	ethMACDestSize  = 6
-	ethMACSrcSize   = 6
-	eth8021QtagSize = 4
-	ethLengthSize   = 2
-	ipHeaderMinSize = 20
-	ethFCSsize      = 4
-
-	minPacketSize = ethMACDestSize + ethMACSrcSize +
-		ethLengthSize +
-		ipHeaderMinSize +
-		ethFCSsize
+	minEthPacketSize = 64
 )
 
 //export tc6_onRxEthernetPacket
@@ -231,7 +216,7 @@ func tc6_onRxEthernetPacket(_ *C.TC6_t, success int, packetLen uint16, rxTimesta
 		status = "invalid"
 	case len(pbuf) != int(packetLen):
 		status = "wrong length"
-	case packetLen < minPacketSize:
+	case packetLen < minEthPacketSize:
 		status = "too short"
 	}
 	if len(status) != 0 {
