@@ -36,8 +36,7 @@ func SetupWithDHCP(cfg SetupConfig) (*stacks.PortStack, error) {
 		}
 	}
 
-	// cfg.Logger = logger // Uncomment to see in depth info on wifi device functioning.
-	logger.Info("initializing pico W device...")
+	logger.Info("initializing stack...")
 	mac := [6]byte{0x11, 0x22, 0x33, 0x44, 0x55, 0x66}
 
 	stack := stacks.NewPortStack(stacks.PortStackConfig{
@@ -47,11 +46,6 @@ func SetupWithDHCP(cfg SetupConfig) (*stacks.PortStack, error) {
 		MTU:             mtu,
 		Logger:          logger,
 	})
-
-	//	dev.RecvEthHandle(stack.RecvEth)
-
-	// Begin asynchronous packet handling.
-	//	go nicLoop(dev, stack)
 	stack.SetAddr(reqAddr) // It's important to set the IP address after DHCP completes.
 
 	return stack, nil
