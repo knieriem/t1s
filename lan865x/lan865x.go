@@ -219,33 +219,29 @@ const (
 //export tc6_onRxEthernetPacket
 func tc6_onRxEthernetPacket(_ *C.TC6_t, success int, packetLen uint16, rxTimestamp *uint64, gTag unsafe.Pointer) {
 	inst := instFromHandle(gTag)
-	status := "ok"
-	defer func() {
-		inst.info("onRxPacket", "len", packetLen, "status", status)
-	}()
+
 	pbuf := inst.pbuf
 	inst.pbuf = pbuf[:0]
 	rxInvalid := inst.rxInvalid
 	inst.rxInvalid = false
-	if success == 0 {
-		status = "bad"
-		return
-	}
-	if rxInvalid || len(pbuf) == 0 {
-		status = "inval"
-		return
-	}
-	if len(pbuf) != int(packetLen) {
+
+	var status string
+	switch {
+	case success == 0 || rxInvalid || len(pbuf) == 0:
+		status = "invalid"
+	case len(pbuf) != int(packetLen):
 		status = "wrong length"
-		return
-	}
-	if packetLen < minPacketSize {
+	case packetLen < minPacketSize:
 		status = "too short"
+	}
+	if len(status) != 0 {
+		inst.info("onRxPacket: packet dropped", "len", packetLen, "err", status)
 		return
 	}
+	inst.info("onRxPacket", "len", packetLen)
 	err := inst.UpperProto.SendEthUp(pbuf)
 	if err != nil {
-		status = "dropped"
+		inst.info("onRxPacket: sendEthUp failed", "err", err)
 	}
 }
 
