@@ -213,9 +213,9 @@ func tc6_onRxEthernetPacket(_ *C.TC6_t, success int, packetLen uint16, rxTimesta
 	var status string
 	switch {
 	case success == 0 || rxInvalid || len(pbuf) == 0:
-		status = "invalid"
+		status = "invalid state"
 	case len(pbuf) != int(packetLen):
-		status = "wrong length"
+		status = "invalid length"
 	case packetLen < minEthPacketSize:
 		status = "too short"
 	}
