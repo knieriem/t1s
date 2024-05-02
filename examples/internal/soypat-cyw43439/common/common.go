@@ -11,6 +11,9 @@ import (
 const mtu = lan865x.MTU
 
 type SetupConfig struct {
+	// MAC address
+	MAC [6]byte
+
 	// DHCP requested hostname.
 	Hostname string
 	// DHCP requested IP address. On failing to find DHCP server is used as static IP.
@@ -37,10 +40,9 @@ func SetupWithDHCP(cfg SetupConfig) (*stacks.PortStack, error) {
 	}
 
 	logger.Info("initializing stack...")
-	mac := [6]byte{0x11, 0x22, 0x33, 0x44, 0x55, 0x66}
 
 	stack := stacks.NewPortStack(stacks.PortStackConfig{
-		MAC:             mac,
+		MAC:             cfg.MAC,
 		MaxOpenPortsUDP: int(cfg.UDPPorts),
 		MaxOpenPortsTCP: int(cfg.TCPPorts),
 		MTU:             mtu,

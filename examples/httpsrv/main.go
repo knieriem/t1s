@@ -24,11 +24,13 @@ func (p *proto) PollForEth(buf []byte) (int, error) {
 	return n, err
 }
 
+var macAddr = [6]byte{0x11, 0x22, 0x33, 0x44, 0x55, 0x66}
+
 var ipAddr = "192.168.5.100"
 
 var inst = lan865x.Inst{
 	MAC: &t1s.MACConf{
-		Addr: [6]byte{0x11, 0x22, 0x33, 0x44, 0x55, 0x66},
+		Addr: macAddr,
 	},
 	PLCA: &plca,
 }
@@ -51,7 +53,7 @@ func main() {
 	inst.DebugInfo = t1sLog.Info
 
 	httpsrv.SetLED = setLED
-	stack := httpsrv.Setup(logger, ipAddr)
+	stack := httpsrv.Setup(log, ipAddr, macAddr)
 	inst.UpperProto = &proto{stack: stack}
 
 	if ok := inst.Init(); !ok {

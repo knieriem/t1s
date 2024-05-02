@@ -65,8 +65,9 @@ func httpHandler(respWriter io.Writer, resp *httpx.ResponseHeader, req *httpx.Re
 
 var SetLED = func(state bool) {}
 
-func Setup(logger *slog.Logger, ipAddr string) *stacks.PortStack {
+func Setup(logger *slog.Logger, ipAddr string, mac [6]byte) *stacks.PortStack {
 	stack, err := common.SetupWithDHCP(common.SetupConfig{
+		MAC:         mac,
 		RequestedIP: ipAddr,
 		Hostname:    "TCP-pico",
 		Logger:      logger,
