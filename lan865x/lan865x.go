@@ -54,7 +54,7 @@ type Inst struct {
 	// This way a direct dependency on a [slog.Logger] can be
 	// avoided for now, which may increase chances for tinygo
 	// to better optimize for size in case logging is disabled.
-	DebugInfo func(msg string, a ...any)
+	DebugInfo  func(msg string, a ...any)
 	DebugError func(msg string, a ...any)
 }
 
@@ -218,14 +218,14 @@ const (
 
 	ethMACDestSize  = 6
 	ethMACSrcSize   = 6
-	eth8021QtagSize = 4	// optional
+	eth8021QtagSize = 4 // optional
 	ethLengthSize   = 2
 
 	ethHeaderMinSize = ethMACDestSize + ethMACSrcSize + ethLengthSize
-	ipHeaderMinSize = 20
+	ipHeaderMinSize  = 20
 	udpHeaderMinSize = 8
 
-	ethFCSsize      = 4
+	ethFCSsize = 4
 
 	// minPacketHeaderSize equals a value of 42
 	// See also https://github.com/MicrochipTech/oa-tc6-lib/issues/17#issuecomment-2089815956
