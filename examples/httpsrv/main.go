@@ -51,6 +51,7 @@ func main() {
 	hwIntf := newHardwareIntf(t1sLog)
 	inst.Dev = hwIntf
 	inst.DebugInfo = t1sLog.Info
+	inst.DebugError = t1sLog.Error
 
 	httpsrv.SetLED = setLED
 	stack := httpsrv.Setup(log, ipAddr, macAddr)

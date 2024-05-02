@@ -49,7 +49,13 @@ type Inst struct {
 
 	spiTag uint8
 
+	// DebugInfo and DebugError can be set to functions
+	// logging at info resp. error level.
+	// This way a direct dependency on a [slog.Logger] can be
+	// avoided for now, which may increase chances for tinygo
+	// to better optimize for size in case logging is disabled.
 	DebugInfo func(msg string, a ...any)
+	DebugError func(msg string, a ...any)
 }
 
 func (inst *Inst) info(msg string, a ...any) {
@@ -57,6 +63,13 @@ func (inst *Inst) info(msg string, a ...any) {
 		return
 	}
 	inst.DebugInfo(msg, a...)
+}
+
+func (inst *Inst) logError(msg string, a ...any) {
+	if inst.DebugError == nil {
+		return
+	}
+	inst.DebugError(msg, a...)
 }
 
 var pbuf [MTU]byte
@@ -218,7 +231,6 @@ const (
 	// See also https://github.com/MicrochipTech/oa-tc6-lib/issues/17#issuecomment-2089815956
 	// Note that up to now with packets provided by [onRxEthernetPacket]
 	// we didn't observe a packetLen smaller than 64 bytes.
-	// 
 	minPacketHeaderSize = ethHeaderMinSize + ipHeaderMinSize + udpHeaderMinSize
 )
 
@@ -241,20 +253,20 @@ func tc6_onRxEthernetPacket(_ *C.TC6_t, success int, packetLen uint16, rxTimesta
 		status = "too short"
 	}
 	if len(status) != 0 {
-		inst.info("onRxPacket: packet dropped", "len", packetLen, "err", status)
+		inst.logError("onRxPacket: packet dropped", "len", packetLen, "err", status)
 		return
 	}
 	inst.info("onRxPacket", "len", packetLen)
 	err := inst.UpperProto.SendEthUp(pbuf)
 	if err != nil {
-		inst.info("onRxPacket: sendEthUp failed", "err", err)
+		inst.logError("onRxPacket: sendEthUp failed", "err", err)
 	}
 }
 
 //export tc6_onError
 func tc6_onError(_ *C.TC6_t, e C.TC6_Error_t, gTag unsafe.Pointer) {
 	inst := instFromHandle(gTag)
-	inst.info("onError", "err", e)
+	inst.logError("onError", "err", e)
 }
 
 //export tc6_onNeedService
