@@ -198,7 +198,28 @@ func tc6_onRxEthernetSlice(_ *C.TC6_t, pRx unsafe.Pointer, offset uint16, nRx ui
 }
 
 const (
-	minEthPacketSize = 64
+	// IEEE 802.3 Ethernet Frame Format
+	ethPreambleSize       = 7
+	ethStartFrameDelSize  = 1
+	ethPreambleAndSFDSize = ethPreambleSize + ethStartFrameDelSize
+
+	ethMACDestSize  = 6
+	ethMACSrcSize   = 6
+	eth8021QtagSize = 4	// optional
+	ethLengthSize   = 2
+
+	ethHeaderMinSize = ethMACDestSize + ethMACSrcSize + ethLengthSize
+	ipHeaderMinSize = 20
+	udpHeaderMinSize = 8
+
+	ethFCSsize      = 4
+
+	// minPacketHeaderSize equals a value of 42
+	// See also https://github.com/MicrochipTech/oa-tc6-lib/issues/17#issuecomment-2089815956
+	// Note that up to now with packets provided by [onRxEthernetPacket]
+	// we didn't observe a packetLen smaller than 64 bytes.
+	// 
+	minPacketHeaderSize = ethHeaderMinSize + ipHeaderMinSize + udpHeaderMinSize
 )
 
 //export tc6_onRxEthernetPacket
@@ -216,7 +237,7 @@ func tc6_onRxEthernetPacket(_ *C.TC6_t, success int, packetLen uint16, rxTimesta
 		status = "invalid state"
 	case len(pbuf) != int(packetLen):
 		status = "invalid length"
-	case packetLen < minEthPacketSize:
+	case packetLen < minPacketHeaderSize:
 		status = "too short"
 	}
 	if len(status) != 0 {
