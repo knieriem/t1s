@@ -185,7 +185,7 @@ func (inst *Inst) SetPLCA(enable bool, nodeId uint8, nodeCount uint8) error {
 //export tc6_onRxEthernetSlice
 func tc6_onRxEthernetSlice(_ *C.TC6_t, pRx unsafe.Pointer, offset uint16, nRx uint16, gTag unsafe.Pointer) {
 	inst := instFromHandle(gTag)
-	//	log.Println("onRxSlice", offset, nRx, inst.rxInvalid)
+	//inst.info("onRxSlice", "offset", offset, "numRx", nRx, "rxInvalid", inst.rxInvalid)
 	if inst.rxInvalid {
 		return
 	}
@@ -203,9 +203,8 @@ func tc6_onRxEthernetSlice(_ *C.TC6_t, pRx unsafe.Pointer, offset uint16, nRx ui
 		inst.rxInvalid = true
 		return
 	}
-	rx := unsafe.Slice((*byte)(pRx), nRx)
-	//	log.Println("onRxSlice added", nRx, newLen)
 
+	rx := unsafe.Slice((*byte)(pRx), nRx)
 	inst.pbuf = inst.pbuf[:newLen]
 	copy(inst.pbuf[offset:], rx)
 }
