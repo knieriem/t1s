@@ -17,19 +17,18 @@ import (
 	"periph.io/x/conn/v3/spi/spireg"
 	"periph.io/x/host/v3"
 	"periph.io/x/host/v3/rpi"
-
-	"github.com/knieriem/t1s/lan865x"
 )
 
 type hwIntf struct {
 	spiConn       spi.Conn
 	spiPortCloser spi.PortCloser
+	log           *slog.Logger
 }
 
 func (d *hwIntf) IntrActive() bool {
 	active := intrPin.Read() == false
 	if active {
-		log.Println("INTR")
+		d.log.Info("intr")
 	}
 	return active
 }
@@ -74,11 +73,10 @@ func (d *hwIntf) setupSPI(spidev string) error {
 	}
 	d.spiPortCloser = port
 	d.spiConn = c
-	log.Println("spi init done")
 	return nil
 }
 
-func newHardwareIntf() lan865x.HwIntf {
+func newHardwareIntf(logger *slog.Logger) *hwIntf {
 	flag.StringVar(&ipAddr, "ip", ipAddr, "IP address")
 	flag.UintVar(&debugLevel, "D", 0, "ethernet packet trace level")
 	flag.Parse()
@@ -91,6 +89,7 @@ func newHardwareIntf() lan865x.HwIntf {
 	if !rpi.Present() {
 		log.Fatal("not running on an RPi")
 	}
+	hw.log = logger
 
 	resetPin = lookupPin(*resetPinName)
 	resetPin.Out(gpio.High)

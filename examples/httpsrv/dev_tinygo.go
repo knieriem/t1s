@@ -3,7 +3,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"machine"
 	"time"
 
@@ -13,12 +13,13 @@ import (
 type hwIntf struct {
 	spidev  *spi.Dev
 	intrPin machine.Pin
+	log     *slog.Logger
 }
 
 func (d *hwIntf) IntrActive() bool {
 	active := d.intrPin.Get() == false
 	if active {
-		log.Println("INTR")
+		d.log.Info("intr")
 	}
 	return active
 }
@@ -40,7 +41,8 @@ var hw = hwIntf{
 	intrPin: intrPin,
 }
 
-func newHardwareIntf() *hwIntf {
+func newHardwareIntf(log *slog.Logger) *hwIntf {
+	hw.log = log
 	pinout(csLAN865x)
 	mLED.Init()
 	return &hw

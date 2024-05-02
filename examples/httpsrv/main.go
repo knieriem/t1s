@@ -41,12 +41,14 @@ var plca = t1s.PLCAConf{
 }
 
 func main() {
-	hwIntf := newHardwareIntf()
-	inst.Dev = hwIntf
 	lan865x.Ticks = &ticksProvider{t0: time.Now()}
 
-	logger := newLogger()
-	inst.DebugInfo = logger.WithGroup("t1s").Info
+	log := newLogger()
+	t1sLog := log.WithGroup("t1s")
+
+	hwIntf := newHardwareIntf(t1sLog)
+	inst.Dev = hwIntf
+	inst.DebugInfo = t1sLog.Info
 
 	httpsrv.SetLED = setLED
 	stack := httpsrv.Setup(logger, ipAddr)
