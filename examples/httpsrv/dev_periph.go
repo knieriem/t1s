@@ -77,6 +77,8 @@ func (d *hwIntf) setupSPI(spidev string) error {
 }
 
 func newHardwareIntf(logger *slog.Logger) *hwIntf {
+	flag.UintVar(&plcaNodeID, "plca-id", 0, "PLCA node id")
+	flag.UintVar(&plcaNodeCount, "plca-count", 0, "PLCA node count")
 	flag.StringVar(&ipAddr, "ip", ipAddr, "IP address")
 	flag.UintVar(&debugLevel, "D", 0, "ethernet packet trace level")
 	flag.Parse()

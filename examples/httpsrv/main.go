@@ -24,9 +24,14 @@ func (p *proto) PollForEth(buf []byte) (int, error) {
 	return n, err
 }
 
-var macAddr = [6]byte{0x11, 0x22, 0x33, 0x44, 0x55, 0x66}
+var (
+	macAddr = [6]byte{0x11, 0x22, 0x33, 0x44, 0x55, 0x66}
 
-var ipAddr = "192.168.5.100"
+	ipAddr = "192.168.5.100"
+
+	plcaNodeID    uint = 1
+	plcaNodeCount uint = 8
+)
 
 var inst = lan865x.Inst{
 	MAC: &t1s.MACConf{
@@ -36,8 +41,8 @@ var inst = lan865x.Inst{
 }
 
 var plca = t1s.PLCAConf{
-	NodeID:     1,
-	NodeCount:  8,
+	NodeID:     uint8(plcaNodeID),
+	NodeCount:  uint8(plcaNodeCount),
 	BurstCount: 0,
 	BurstTimer: 128,
 }
