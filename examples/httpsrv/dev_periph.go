@@ -38,7 +38,7 @@ var (
 
 	resetPinName = flag.String("reset-pin", "GPIO13", "name of LAN865x reset pin")
 	intrPinName  = flag.String("intr-pin", "GPIO26", "name of LAN865x interrupt pin")
-	spidevName   = flag.String("spidev", "/dev/spidev6.0", "name of the SPI device")
+	spidevName   = flag.String("spidev", "/dev/spidev0.1", "name of the SPI device")
 )
 var resetPin gpio.PinOut
 var intrPin gpio.PinIn
