@@ -49,7 +49,7 @@ var plca = t1s.PLCAConf{
 
 var (
 	noRepeat = false
-	svcPause = 10*time.Millisecond
+	svcPause = 10 * time.Millisecond
 )
 
 func main() {
