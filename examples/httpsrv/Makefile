@@ -1,13 +1,16 @@
 P=httpsrv
 TARG=nucleo-g071rb
 TARG=pico
-PROG=$P_$(TARG)
+LOGLEVEL=info
+
+PROG=$P_$(TARG)_log$(LOGLEVEL)
 
 OPT=z
 
 TGOFLAGS=\
 	-target $(TARG)\
 	-size short\
+	-tags log$(LOGLEVEL)\
 	-stack-size=8kb\
 	-opt $(OPT)\
 
@@ -31,7 +34,7 @@ rpi:
 	CGO_ENABLED=1 \
 	CC=/usr/bin/aarch64-linux-gnu-gcc-12 \
 	go build -o $P.rpi \
-		-tags netgo \
+		-tags netgo,log$(LOGLEVEL) \
 		-ldflags '-linkmode external -extldflags=-static -s -w'
 
 clean:

@@ -41,11 +41,18 @@ var hw = hwIntf{
 	intrPin: intrPin,
 }
 
-func newHardwareIntf(log *slog.Logger) *hwIntf {
-	hw.log = log
+func initPlatform() (srvLog, t1sLog *slog.Logger, hwi *hwIntf) {
+	logger := newTextLogger(logLevel)
+	t1sLog = logger.WithGroup("t1s")
+	mainLog := logger.WithGroup("main")
+	hw.log = mainLog
+
+	inst.DebugInfo = t1sLog.Info
+	inst.DebugError = t1sLog.Error
+
 	pinout(csLAN865x)
 	mLED.Init()
-	return &hw
+	return logger, t1sLog, &hw
 }
 
 type ticksProvider struct {

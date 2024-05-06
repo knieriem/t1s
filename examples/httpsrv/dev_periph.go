@@ -3,11 +3,14 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"log/slog"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"periph.io/x/conn/v3/gpio"
@@ -76,13 +79,15 @@ func (d *hwIntf) setupSPI(spidev string) error {
 	return nil
 }
 
-func newHardwareIntf(logger *slog.Logger) *hwIntf {
+func initPlatform() (mainLog, srvLog *slog.Logger, hwi *hwIntf) {
 	useCSMACD := false
+	logLevelSpec := "main=i,srv=e,t1s=e"
 	flag.BoolVar(&useCSMACD, "csmacd", useCSMACD, "use CSMA/CD, disable PLCA")
 	flag.UintVar(&plcaNodeID, "plca-id", plcaNodeID, "PLCA node id")
 	flag.UintVar(&plcaNodeCount, "plca-count", plcaNodeCount, "PLCA node count")
 	flag.StringVar(&ipAddr, "ip", ipAddr, "IP address")
-	flag.UintVar(&debugLevel, "D", 0, "ethernet packet trace level")
+	flag.StringVar(&logLevelSpec, "D", logLevelSpec, "log levels specification")
+	flag.UintVar(&debugLevel, "E", 0, "ethernet packet trace level")
 	flag.Parse()
 
 	if useCSMACD {
@@ -97,7 +102,17 @@ func newHardwareIntf(logger *slog.Logger) *hwIntf {
 	if !rpi.Present() {
 		log.Fatal("not running on an RPi")
 	}
-	hw.log = logger
+
+	err = updateLogLevelsFromSpec(logLevelSpec)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mainLog = newTextLogger(mainLogLevel).WithGroup("main")
+	srvLog = newTextLogger(srvLogLevel)
+	t1sLog := newTextLogger(logLevel).WithGroup("t1s")
+	inst.DebugInfo = t1sLog.Info
+	inst.DebugError = t1sLog.Error
+	hw.log = mainLog
 
 	resetPin = lookupPin(*resetPinName)
 	resetPin.Out(gpio.High)
@@ -110,7 +125,7 @@ func newHardwareIntf(logger *slog.Logger) *hwIntf {
 		log.Fatalf("failed to initialize spidev: %v", err)
 	}
 
-	return &hw
+	return mainLog, srvLog, &hw
 }
 
 func lookupPin(name string) gpio.PinIO {
@@ -131,10 +146,67 @@ func (tp *ticksProvider) Milliseconds() uint32 {
 
 var hw hwIntf
 
-func newLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
+var mainLogLevel = slog.LevelInfo
+var srvLogLevel = slog.LevelError
+var t1sLogLevel = slog.LevelError
+
+func updateLogLevelsFromSpec(logSpec string) error {
+	for _, expr := range strings.Split(logSpec, ",") {
+		var name string
+		iAssign := strings.IndexByte(expr, '=')
+		if iAssign != -1 {
+			name = expr[:iAssign]
+			expr = expr[iAssign+1:]
+		}
+		level, err := parseLogLevelExpr(expr)
+		if err != nil {
+			return err
+		}
+		switch name {
+		case "all", "":
+			mainLogLevel = level
+			t1sLogLevel = level
+			srvLogLevel = level
+		case "main":
+			mainLogLevel = level
+		case "t1s":
+			t1sLogLevel = level
+		case "srv":
+			srvLogLevel = level
+		default:
+			return fmt.Errorf("decoding log spec failed: unknown name: %q", name)
+		}
+	}
+	return nil
+}
+
+func parseLogLevelExpr(expr string) (slog.Level, error) {
+	var l slog.Level
+	if len(expr) == 0 {
+		return 0, errors.New("empty log expression")
+	}
+
+	s := expr[1:]
+	switch expr[0] {
+	default:
+		s = expr
+	case 'd':
+		l = slog.LevelDebug
+	case 'i':
+		l = slog.LevelInfo
+	case 'w':
+		l = slog.LevelWarn
+	case 'e':
+		l = slog.LevelError
+	}
+	if len(s) != 0 {
+		i, err := strconv.ParseInt(s, 10, 0)
+		if err != nil {
+			return 0, err
+		}
+		l += slog.Level(i)
+	}
+	return l, nil
 }
 
 func setLED(state bool) {

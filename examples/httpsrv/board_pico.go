@@ -3,9 +3,7 @@
 package main
 
 import (
-	"log/slog"
 	"machine"
-	"os"
 
 	"github.com/knieriem/t1s/examples/internal/tinygo/led"
 	"github.com/knieriem/t1s/examples/internal/tinygo/spi"
@@ -26,9 +24,3 @@ var spidev = spi.Dev{
 }
 
 var mLED = led.PinLED{Pin: machine.LED}
-
-func newLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
-}
