@@ -47,6 +47,11 @@ var plca = t1s.PLCAConf{
 	BurstTimer: 128,
 }
 
+var (
+	noRepeat = false
+	svcPause = 10*time.Millisecond
+)
+
 func main() {
 	lan865x.Ticks = &ticksProvider{t0: time.Now()}
 
@@ -64,7 +69,12 @@ func main() {
 	println("init done")
 
 	for {
-		inst.Service()
-		time.Sleep(10 * time.Millisecond)
+		for {
+			done := inst.Service()
+			if done || noRepeat {
+				break
+			}
+		}
+		time.Sleep(svcPause)
 	}
 }

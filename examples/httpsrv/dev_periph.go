@@ -86,6 +86,8 @@ func initPlatform() (mainLog, srvLog *slog.Logger, hwi *hwIntf) {
 	flag.UintVar(&plcaNodeID, "plca-id", plcaNodeID, "PLCA node id")
 	flag.UintVar(&plcaNodeCount, "plca-count", plcaNodeCount, "PLCA node count")
 	flag.StringVar(&ipAddr, "ip", ipAddr, "IP address")
+	flag.BoolVar(&noRepeat, "svc-no-repeat", noRepeat, "skip service repetition")
+	flag.DurationVar(&svcPause, "svc-pause", svcPause, "service pause duration")
 	flag.StringVar(&logLevelSpec, "D", logLevelSpec, "log levels specification")
 	flag.UintVar(&debugLevel, "E", 0, "ethernet packet trace level")
 	flag.Parse()
