@@ -63,10 +63,10 @@ func main() {
 	inst.UpperProto = &proto{stack: stack}
 
 	if ok := inst.Init(); !ok {
-		println("init failed")
+		log.Error("init failed")
 		return
 	}
-	println("init done")
+	log.Info("init done")
 
 	for {
 		for {
