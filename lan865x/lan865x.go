@@ -173,6 +173,7 @@ func (inst *Inst) SendEthDown(packet []byte) error {
 func t1s_onRawTxPacket(gTag, pTx unsafe.Pointer, nTx uint16) {
 	inst := instFromHandle(gTag)
 	inst.txBufBusy = false
+	inst.DebugInfo("onTxPacket", "len", nTx)
 }
 
 func (inst *Inst) SetPLCA(enable bool, nodeId uint8, nodeCount uint8) error {
