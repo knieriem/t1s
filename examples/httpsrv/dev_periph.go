@@ -37,7 +37,7 @@ func (d *hwIntf) IntrActive() bool {
 }
 
 var (
-	debugLevel uint
+	traceEth bool
 
 	resetPinName = flag.String("reset-pin", "GPIO13", "name of LAN865x reset pin")
 	intrPinName  = flag.String("intr-pin", "GPIO26", "name of LAN865x interrupt pin")
@@ -89,7 +89,7 @@ func initPlatform() (mainLog, srvLog *slog.Logger, hwi *hwIntf) {
 	flag.BoolVar(&noRepeat, "svc-no-repeat", noRepeat, "skip service repetition")
 	flag.DurationVar(&svcPause, "svc-pause", svcPause, "service pause duration")
 	flag.StringVar(&logLevelSpec, "D", logLevelSpec, "log levels specification")
-	flag.UintVar(&debugLevel, "E", 0, "ethernet packet trace level")
+	flag.BoolVar(&traceEth, "E", false, "enable ethernet packet traces")
 	flag.Parse()
 
 	if useCSMACD {
@@ -216,7 +216,7 @@ func setLED(state bool) {
 }
 
 func traceMsg(dir, proto string, packet []byte, err error) {
-	if debugLevel == 0 {
+	if !traceEth {
 		return
 	}
 	prefix := dir + " " + proto
@@ -225,10 +225,6 @@ func traceMsg(dir, proto string, packet []byte, err error) {
 		return
 	}
 	if len(packet) == 0 {
-		return
-	}
-	if debugLevel == 1 {
-		fmt.Fprintf(os.Stderr, "%s [%d]\n", prefix, len(packet))
 		return
 	}
 	fmt.Fprintf(os.Stderr, "%s [%d] % x\n", prefix, len(packet), packet)
