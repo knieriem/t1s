@@ -146,6 +146,7 @@ func (inst *Inst) Service() (allDone bool) {
 			// It is reset later by a callback when
 			// transmission finished.
 			inst.SendEthDown(inst.txBuf[:nTx])
+			allDone = false
 		}
 	}
 	C.TC6Regs_CheckTimers()
